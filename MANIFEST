@@ -1,0 +1,12 @@
+README
+CArray.pm
+CArray.xs
+Changes
+MANIFEST
+Makefile.PL
+Tie-CArray-0.12.txt
+typemap
+t/00intarr.t
+t/01dblarr.t
+t/02strarr.t
+t/03intcvt.t
