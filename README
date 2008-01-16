@@ -59,8 +59,8 @@ Name           DSLI  Description                                  Info
 Tie::CArray    adpO  Space-efficient, typed, external C Arrays    RURBAN
 
 INSTALLATION
-    F<http://xarch.tu-graz.ac.at/home/rurban/software/perl/> or
-    F<http://www.perl.com//CPAN/authors/id/RURBAN/>
+
+    C<cpan Tie::CArray>
 
     Prerequisites needed:
       Tie::Array (standard since 5.005)

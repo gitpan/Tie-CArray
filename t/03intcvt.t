@@ -60,9 +60,8 @@ for my $j (0 .. $n-1) {
 ok( !$failed );
 
 # convert to Int3
-my $I3 = $I->ToInt3 (Tie::CIntArray->new($n,\@i),
-                     Tie::CIntArray->new($n,\@i),
-                     $n);
+my $I3 = $I->ToInt3 (new Tie::CIntArray($n,\@i),
+                     new Tie::CIntArray($n,\@i));
 ok( $I3 );
 ok( ref $I3, 'Tie::CInt3Array');
 
@@ -107,10 +106,9 @@ for my $j (0 .. $n-1) {
 ok( !$failed );			# 16
 
 # convert to Int4
-my $I4 = $I->ToInt4 (Tie::CIntArray->new($n,\@i),
-                     Tie::CIntArray->new($n,\@i),
-                     Tie::CIntArray->new($n,\@i),
-                     $n);
+my $I4 = $I->ToInt4 (new Tie::CIntArray($n,\@i),
+                     new Tie::CIntArray($n,\@i),
+                     new Tie::CIntArray($n,\@i));
 ok( $I4 );
 ok( ref $I4, 'Tie::CInt4Array');
 

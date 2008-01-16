@@ -1,0 +1,14 @@
+--- #YAML:1.0
+name:                Tie-CArray
+version:             0.13
+abstract:            Typed, space-efficient, external C Arrays
+license:             ~
+author:              
+    - Reini Urban
+generated_by:        ExtUtils::MakeMaker version 6.42
+distribution_type:   module
+requires:     
+    Tie::Array:                    1
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3

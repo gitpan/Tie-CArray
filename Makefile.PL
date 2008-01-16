@@ -7,9 +7,9 @@ WriteMakefile(
     ($] < 5.005 ? () :
       (
 		'AUTHOR'	=> 'Reini Urban',
-		'ABSTRACT'  => 'Typed, space-efficient, external C Arrays',
+		'ABSTRACT'	=> 'Typed, space-efficient, external C Arrays',
       )),
-	'PREREQ_PM' => { 'Tie::Array' => 1.00, },
+    'PREREQ_PM' => { 'Tie::Array' => 1.00 },
 
     # POLLUTE is not needed for 5.6
 
@@ -18,7 +18,7 @@ WriteMakefile(
 
       # update the pod2text textfile from the embedded pod
       'pod'  => "\$(DISTVNAME).txt\n",
-      'dist' => "\$(DISTDEFAULT) \$(DISTVNAME).txt\n",
+      'dist' => " \$(DISTVNAME).txt \$(DISTDEFAULT)\n",
       '$(DISTVNAME).txt' => "\$(VERSION_FROM)\n" .
       	"\tpod2text \$(VERSION_FROM) >\$(DISTVNAME).txt\n",
 

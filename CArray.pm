@@ -10,7 +10,7 @@ use Carp;
 use vars qw( $VERSION @ISA );
 require DynaLoader;
 #use Autoloader;    # while testing remove this
-$VERSION = sprintf("%d.%02d", q$Revision: 0.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 0.13 $ =~ /(\d+)\.(\d+)/);
 @ISA = qw( DynaLoader );
 
 =head1 NAME
@@ -82,7 +82,7 @@ bootstrap Tie::CArray $VERSION;
 # Preloaded methods go here.
 package Tie::CArray;
 require 5.005;	# Tie::Array is standard since 5.005
-			    # The requirement of Tie::Array will leave with future versions
+		# The requirement of Tie::Array will leave with future versions
 use Tie::Array;
 use strict;
 use vars qw(@ISA);
@@ -91,6 +91,7 @@ use Carp;
 
 # Mandatory methods defined only for the abstract class Tie::CArray,
 # in terms of the autoloaded spezialized methods
+
 =pod
 
 =head1 CLASS METHODS
@@ -299,6 +300,7 @@ CIntArray object in scalar context.
 The optional cmpfunc argument is not yet implemented.
 
 =cut
+
 #03.12.99 12:00 init
 sub isort {
     sort { $_[0]->get($a) <=> $_[0]->get($b) }
@@ -320,8 +322,6 @@ sub reverse { nreverse($_[0]->copy()) }
 =back
 
 =head1 SOME SEQUENTIAL CLASSES and CONVERSION
-
-=over 4
 
 To mix and change parallel and sequential data structures, some sequential
 types (int[2],int[3],int[4],double[2],double[3]) are derived from their
@@ -355,6 +355,8 @@ insert of structures in parallel arrays is costly.
 
   # copies back with reusing some existing memory (not checked!)
   ($X, $Y, $Z) = $I->ToPar($X,$Z);  # Note: I3 will be fresh.
+
+=over 4
 
 =item ToPar ( SeqArray, [ Tie::CArray,... ] )
 
@@ -658,6 +660,7 @@ use vars qw(@ISA);
 
 #
 ############################################################################
+
 =pod
 
 =head1 TIEARRAY METHODS
@@ -678,8 +681,8 @@ be used just as any normal perl array.
 =back
 
 =cut
-# The TIEARRAY stuff should be autoloaded (after testing)
 
+# The TIEARRAY stuff should be autoloaded (after testing)
 package Tie::CArray;
 
 sub TIEARRAY  { $_[0]->new(@_) }
@@ -717,15 +720,11 @@ sub TIEARRAY  { $_[0]->new(@_) }
 #}
 
 1;
-
 __END__
+
 =pod
 
 =head1 SEE ALSO
-
-  http://www.perl.com//CPAN/authors/id/RURBAN/         or
-  http://xarch.tu-graz.ac.at/home/rurban/software/perl or
-  ftp://xarch.tu-graz.ac.at/pub/autocad/urban/perl
 
 L<perlxs(1)>, L<perlfunc/tie>, L<Tie::Array(3)>, L<Geometry::Points(3)>,
 L<C::Dynalib::Poke(3)>, L<Tie::MmapArray(3)>
@@ -789,6 +788,6 @@ This is alpha, not fully tested yet!
 
 =head1 VERSION
 
-$Revision 0.12 $ $Date 2000-01-11 $
+$Revision 0.13 $ $Date 2008-01-15 $
 
 =cut

@@ -1,5 +1,7 @@
 Revision history for Perl extension Tie::CArray
 
+0.13  2008-01-15 20:00
+	- fixed wrong tests
 0.12  2000-01-11 06:22
 	- added SLICE
 	- finally fixed eof problems strict unix c compilers
