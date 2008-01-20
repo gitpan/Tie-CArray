@@ -20,14 +20,14 @@ T_CARRAY
 	g_classname = mysv_classname($arg);
         if (sv_derived_from($arg, \"${(my $ntt=$ntype)=~s/__(.*)Ptr$/::$1/;\$ntt}\")) {
           IV tmp = SvIV((SV*)SvRV($arg));
-	  $var = ($type) tmp;
+	  $var = INT2PTR($type, tmp);
 	} else {
           croak(\"$var is not of type ${(my $ntt=$ntype)=~s/__(.*)Ptr$/::$1/;\$ntt}\");
 	}
 T_CPTR
         if (sv_derived_from($arg, \"${(my $ntt=$ntype)=~s/(.)(.*)Ptr$/'C'.uc($1).$2.'Array'/e;\$ntt}\")) {
 	  IV tmp = SvIV((SV*)SvRV($arg));
-	  $var = ($type) tmp;
+	  $var = INT2PTR($type, tmp);
 	} else {
           croak(\"$var is not of type ${(my $ntt=$ntype)=~s/(.)(.*)Ptr$/'C'.uc($1).$2.'Array'/e;\$ntt}\");
 	}

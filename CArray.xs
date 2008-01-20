@@ -35,8 +35,8 @@ extern "C" {
 }
 #endif
 
-#define RCS_STRING "$Id: CArray.xs 0.12 2000/01/11 07:39:44 rurban Exp $"
-#define OLD /* don't use the new version yet, stay 0.11 compatible */
+#define RCS_STRING "$Id: CArray.xs 0.14 2000/01/11 07:39:44 rurban Exp $"
+#define OLD /* with OLD don't use the new version yet, stay 0.11 compatible */
 
 /* We need some memory optimization values here */
 #define PAGEBITS  11                    /* we can also use 10 or 12, most system malloc to 12 ie 4096 */
@@ -233,21 +233,23 @@ int freesize (int len, int size)
  * with more boundaries (128, 256, 2048)
  *   < 128 grow to 128, < 256 grow to 256, else grow to 2048.
  */
-const int PAGE_BOUNDARY[] = (128, 256, 2048, INT_MAX);  /* must be exponents of 2 */
-const int PAGE_BOUNDARY_N = sizeof(PAGE_BOUNDARIES)/sizeof(int) - 1;
+const int PAGE_BOUNDARY[4]; // = (128, 256, 2048, INT_MAX);  /* must be exponents of 2 */
+const int PAGE_BOUNDARY_N = sizeof(PAGE_BOUNDARY)/sizeof(int) - 1;
 
 int parametrized_freesize (int len, int elsize)
 {
+    int i;
+    int pagesize = PAGE_BOUNDARY[3];
     len *= elsize;
-    for ( int i=0; i < PAGE_BOUNDARY_N; i++) {
+    for ( i=0; i < PAGE_BOUNDARY_N; i++) {
         if (len > PAGE_BOUNDARY[i]) {
   	    int pagesize = PAGE_BOUNDARY[i+1];
-	    int pagebits = log2(bound);
-	    size = max( pagesize-len,
-	    		len - ((len >> pagebits) << pagebits)) / elsize;
+	    int pagebits = log2(pagesize);
+	    pagesize = max( pagesize-len,
+			    len - ((len >> pagebits) << pagebits)) / elsize;
 	}
     }
-    return size;
+    return pagesize;
 }
 #endif /* OLD */
 
@@ -469,12 +471,12 @@ int myarray_init (char *classname, Tie__CArray *carray, AV *av)
 #ifndef OLD
 
 static void
-free_array_field_descriptor(ARRAY_ELEMENT_T *afields, int nfields)
+free_array_field_descriptor(Tie__CArray__SubArray *afields, int nfields)
 {
     DBG_PRINTF(("free_array_field_descriptor(%p, $d)", afields, nfields));
 
     if (afields) {
-	ARRAY_ELEMENT_T *ap = afields + nfields;
+	Tie__CArray__SubArray *ap = afields + nfields;
 
 	while (--ap >= afields) {
 	    if (ap->eltype == HASH_FIELDS) {
@@ -495,7 +497,7 @@ free_hash_field_descriptor(HASH_ELEMENT_T *hfields, int nfields)
     DBG_PRINTF(("free_hash_field_descriptor(%p, %d)", hfields, nfields));
 
     if (hfields) {
-	HASH_ELEMENT_T *hp;
+	Tie__CArray__SubHash *hp;
 
 	for (hp = hfields; nfields-- > 0; hp++) {
 	    if (hp->key) {
@@ -516,7 +518,7 @@ free_hash_field_descriptor(HASH_ELEMENT_T *hfields, int nfields)
 /* Parse field descriptor.
  */
 static int
-parse_field_desc_array(Tie__CArray   *array,
+parse_field_desc_array(Tie__CArray      *array,
 		       ELEMENT_T        *field,
 		       int	        offset,
 		       AV               *desc_array)

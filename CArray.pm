@@ -10,7 +10,7 @@ use Carp;
 use vars qw( $VERSION @ISA );
 require DynaLoader;
 #use Autoloader;    # while testing remove this
-$VERSION = sprintf("%d.%02d", q$Revision: 0.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 0.14 $ =~ /(\d+)\.(\d+)/);
 @ISA = qw( DynaLoader );
 
 =head1 NAME
@@ -392,7 +392,7 @@ object is not new allocated, the space from the given object is used instead.
 
 =back
 
-=head1 ARBITRARY STRUCTURED ARRAYS, PACK-STYLE TEMPLATES
+=head1 ARBITRARY STRUCTURED ARRAYS, PACK-STYLE TEMPLATES (not yet)
 
 Some special sequential arrays are hand-optimized for speed but can hold only
 limited data types (int[2] .. double[3]).
@@ -400,6 +400,8 @@ limited data types (int[2] .. double[3]).
 To support arbitrary structured arrays a second template argument may be
 provided which must be a arrayref of a hash, where its keys name the accessor
 and the values pack-style letters.
+
+This does not work yet!
 
    tie @A, 'Tie::CArray', 200,
                 [ x => 'd',
@@ -788,6 +790,6 @@ This is alpha, not fully tested yet!
 
 =head1 VERSION
 
-$Revision 0.13 $ $Date 2008-01-15 $
+$Revision 0.13 $ $Date 2008-01-20 $
 
 =cut

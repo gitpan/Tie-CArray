@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Tie-CArray
-version:             0.13
+version:             0.14
 abstract:            Typed, space-efficient, external C Arrays
 license:             ~
 author:              

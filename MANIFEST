@@ -4,7 +4,6 @@ CArray.xs
 Changes
 MANIFEST
 Makefile.PL
-Tie-CArray-0.13.txt
 typemap
 t/00intarr.t
 t/01dblarr.t
