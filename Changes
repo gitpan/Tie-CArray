@@ -1,5 +1,11 @@
 Revision history for Perl extension Tie::CArray
 
+0.15  2010-02-22
+	- fix #54864 Fails on systems with nvsize > 8 (-Duselongdouble)
+          exchanged double with NVTYPE, int by IVTYPE
+        - PAGESIZE => MY_PAGESIZE use our own
+        - require from 5.005005 to 5.006. 5.005 fails with 
+          undefined IVTYPE, NVTYPE and a simple workaround didn't work
 0.14  2008-01-20 11:56
 	- fix 64int warnings
 0.13  2008-01-15 20:00

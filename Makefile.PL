@@ -1,15 +1,15 @@
 use ExtUtils::MakeMaker;
+require 5.006;
+
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
     'NAME'  => 'Tie::CArray',
     'VERSION_FROM' => 'CArray.pm',
-    ($] < 5.005 ? () :
-      (
-		'AUTHOR'	=> 'Reini Urban',
-		'ABSTRACT'	=> 'Typed, space-efficient, external C Arrays',
-      )),
+    'AUTHOR'	=> 'Reini Urban',
+    'ABSTRACT'	=> 'Typed, space-efficient, external C Arrays',
     'PREREQ_PM' => { 'Tie::Array' => 1.00 },
+    'SIGN'      => 1,
 
     # POLLUTE is not needed for 5.6
 

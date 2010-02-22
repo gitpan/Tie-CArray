@@ -9,8 +9,7 @@ local $^W = 1;
 use Carp;
 use vars qw( $VERSION @ISA );
 require DynaLoader;
-#use Autoloader;    # while testing remove this
-$VERSION = sprintf("%d.%02d", q$Revision: 0.14 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 0.15 $ =~ /(\d+)\.(\d+)/);
 @ISA = qw( DynaLoader );
 
 =head1 NAME
@@ -81,8 +80,7 @@ bootstrap Tie::CArray $VERSION;
 
 # Preloaded methods go here.
 package Tie::CArray;
-require 5.005;	# Tie::Array is standard since 5.005
-		# The requirement of Tie::Array will leave with future versions
+require 5.006;
 use Tie::Array;
 use strict;
 use vars qw(@ISA);

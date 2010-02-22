@@ -35,12 +35,12 @@ extern "C" {
 }
 #endif
 
-#define RCS_STRING "$Id: CArray.xs 0.14 2000/01/11 07:39:44 rurban Exp $"
+#define RCS_STRING "$Id: CArray.xs 0.15 2000/01/11 07:39:44 rurban Exp $"
 #define OLD /* with OLD don't use the new version yet, stay 0.11 compatible */
 
 /* We need some memory optimization values here */
 #define PAGEBITS  11                    /* we can also use 10 or 12, most system malloc to 12 ie 4096 */
-#define PAGESIZE  (1 << PAGEBITS)       /* 2048 byte is the size of a fresh carray */
+#define MY_PAGESIZE  (1 << PAGEBITS)    /* 2048 byte is the size of a fresh carray */
 
 char *g_classname;                      /* global classname for a typemap trick    */
                                         /* to return the correct derived class     */
@@ -81,13 +81,13 @@ typedef struct {
 } Tie__CArray;
 typedef struct {
     int 	  len;
-    int 	  * ptr;
+    IV 		  * ptr;
     int 	  freelen;
     size_t	  elsize;		/* ie itemsize */
 } Tie__CIntArray;
 typedef struct {
     int 	  len;
-    double 	  * ptr;
+    NV	 	  * ptr;
     int 	  freelen;
     size_t	  elsize;		/* ie itemsize */
 } Tie__CDoubleArray;
@@ -99,11 +99,11 @@ typedef struct {
 } Tie__CStringArray;
 #endif
                                         /* Geometric interpretation: */
-typedef int    int2[2];                 /* edge pairs                */
-typedef int    int3[3];                 /* triangle indices          */
-typedef int    int4[4];                 /* tetras or quads           */
-typedef double double2[2];              /* point2d                   */
-typedef double double3[3];              /* point3d                   */
+typedef IVTYPE int2[2];                 /* edge pairs                */
+typedef IVTYPE int3[3];                 /* triangle indices          */
+typedef IVTYPE int4[4];                 /* tetras or quads           */
+typedef NVTYPE double2[2];              /* point2d                   */
+typedef NVTYPE double3[3];              /* point3d                   */
 
 #ifndef OLD
 /* ***************************************************************** */
@@ -122,7 +122,7 @@ typedef double double3[3];              /* point3d                   */
 #define ARRAY_FIELDS        '['
 #define HASH_FIELDS         '{'
 #define DEFAULT_TYPE	    'i'
-#define DEFAULT_TYPE_SIZE   sizeof(int)
+#define DEFAULT_TYPE_SIZE   sizeof(IV)
 
 typedef struct {
     int 	  len;
@@ -225,7 +225,7 @@ typedef struct subarray  SUBRECORD_REFERENCE_T;
 int freesize (int len, int size)
 {
     len *= size;
-    return max(PAGESIZE-len, len - ((len >> PAGEBITS) << PAGEBITS)) / size;
+    return max(MY_PAGESIZE-len, len - ((len >> PAGEBITS) << PAGEBITS)) / size;
 }
 
 #ifndef OLD
@@ -374,14 +374,14 @@ int myarray_init (char *classname, Tie__CArray *carray, AV *av)
     avlen = av_len(av);
     /* initializing section: */
     if (strEQ(classname,CIntNAME)) {
-        int* array = carray->ptr;
+        IV* array = carray->ptr;
         for (i=0; i <= min(avlen,len-1); i++) {
             array[i] = SvIV(AvARRAY(av)[i]);
         }
         return 1;
     }
     if (strEQ(classname,CDblNAME)) {
-        double* array = carray->ptr;
+        NV* array = carray->ptr;
         for (i=0; i <= min(avlen,len-1); i++) {
             array[i] = SvNV(AvARRAY(av)[i]);
         }
@@ -811,7 +811,7 @@ fetch_value(void *recaddr, char eltype, int elsize)
     long		longval;
     unsigned long       ulongval;
     float		floatval;
-    double		doubleval;
+    NV		doubleval;
 #ifdef HAVE_QUAD_INTS
     Quad_T		quadval;
     Uquad_T         uquadval;
@@ -890,24 +890,24 @@ fetch_value(void *recaddr, char eltype, int elsize)
 #if defined(USE_64_BITS) && defined(HAS_QUAD)
     case 'q':
 	GET_VAL(Quad_T, recaddr, quadval);
-	return newSVnv((double) quadval);
+	return newSVnv((NV) quadval);
 
     case 'Q':
 	GET_VAL(Uquad_T, recaddr, uquadval);
 #ifdef _MSC_VER
         /* msvc <= 6 cannot coerce ulonglong to double, only signed */
-	return newSVnv((double)(Quad_T)uquadval);
+	return newSVnv((NV)(Quad_T)uquadval);
 #else
-	return newSVnv((double) uquadval);
+	return newSVnv((NV) uquadval);
 #endif
 #endif
 
     case 'f':
 	GET_VAL(float, recaddr, floatval);
-	return newSVnv((double) floatval);
+	return newSVnv((NV) floatval);
 
     case 'd':
-	GET_VAL(double, recaddr, doubleval);
+	GET_VAL(NV, recaddr, doubleval);
 	return newSVnv(doubleval);
 
     default:
@@ -931,7 +931,7 @@ store_value(void *recaddr, char eltype, int elsize, SV *value)
     long		longval;
     unsigned long       ulongval;
     float		floatval;
-    double		doubleval;
+    NVTYPE		doubleval;
 #if defined(USE_64_BITS) && defined(HAS_QUAD)
     Quad_T          quadval;
     Uquad_T         uquadval;
@@ -1002,16 +1002,16 @@ store_value(void *recaddr, char eltype, int elsize, SV *value)
     case 'q':
 	quadval = (Quad_T)SvNV(value);
 	SET_VAL(Quad_T, recaddr, quadval);
-	return newSVnv((double)quadval);
+	return newSVnv((NV)quadval);
 
     case 'Q':
 	uquadval = (Uquad_T)SvNV(value);
 	SET_VAL(Uquad_T, recaddr, uquadval);
 #ifdef _MSC_VER
         /* msvc <= 6 cannot coerce ulonglong to double, only signed */
-	return newSVnv((double)(Quad_T)uquadval);
+	return newSVnv((NV)(Quad_T)uquadval);
 #else
-	return newSVnv((double)uquadval);
+	return newSVnv((NV)uquadval);
 #endif
 #endif
 
@@ -1021,8 +1021,8 @@ store_value(void *recaddr, char eltype, int elsize, SV *value)
 	return newSVnv(floatval);
 
     case 'F':
-	doubleval = (double)SvNV(value);
-	SET_VAL(double, recaddr, doubleval);
+	doubleval = (NV)SvNV(value);
+	SET_VAL(NV, recaddr, doubleval);
 	return newSVnv(doubleval);
 
     case ARRAY_FIELDS:
@@ -1211,7 +1211,7 @@ int
 int_itemsize (carray)
     Tie__CIntArray * carray
 CODE:
-    RETVAL = sizeof(int);
+    RETVAL = sizeof(IV);
 OUTPUT:
     RETVAL
 
@@ -1225,7 +1225,7 @@ PPCODE:
     int  len;
     AV * av;
     Tie__CIntArray *carray;
-    int *array;
+    IV * array;
     int i, avlen;
     /* */
     if (items < 1 || items > 3)
@@ -1245,7 +1245,7 @@ PPCODE:
           av   = (items == 2) ? av = (AV*)SvRV(ST(1)) : NULL;
       }
       /* make room: freesize leaves room for certain more items */
-      NEW_CARRAY(carray,Tie__CIntArray,len,sizeof(int));
+      NEW_CARRAY(carray,Tie__CIntArray,len,sizeof(IV));
       if (av) {
         /* for derived classes we'll have a problem here!
         * we could either check the classname for ints,
@@ -1405,7 +1405,8 @@ AV *
 int_list(carray)
     Tie__CIntArray * carray
 PREINIT:
-    int i, len, *array;
+    int i, len;
+    IV *array;
 CODE:
     RETVAL = newAV();
     len = carray->len;
@@ -1487,16 +1488,16 @@ CODE:
   len = carray->len / 3;
   array = (int3 *) carray->ptr;
   if (!x) {
-    NEW_CARRAY(x,Tie__CIntArray,len,sizeof(int));
+    NEW_CARRAY(x,Tie__CIntArray,len,sizeof(IV));
   } else {
     CHECK_DERIVED_FROM(1,CIntNAME);
-    MAYBE_GROW_CARRAY(x,Tie__CIntArray,len,sizeof(int));
+    MAYBE_GROW_CARRAY(x,Tie__CIntArray,len,sizeof(IV));
   }
   if (!y) {
-    NEW_CARRAY(y,Tie__CIntArray,len,sizeof(int));
+    NEW_CARRAY(y,Tie__CIntArray,len,sizeof(IV));
   } else {
     CHECK_DERIVED_FROM(2,CIntNAME);
-    MAYBE_GROW_CARRAY(y,Tie__CIntArray,len,sizeof(int));
+    MAYBE_GROW_CARRAY(y,Tie__CIntArray,len,sizeof(IV));
   }
   for (i=0; i < len; i++) {
     x->ptr[i] = array[i][0];
@@ -1583,22 +1584,22 @@ CODE:
   len = carray->len / 3;
   array = (int3 *) carray->ptr;
   if (!x) {
-    NEW_CARRAY(x,Tie__CIntArray,len,sizeof(int));
+    NEW_CARRAY(x,Tie__CIntArray,len,sizeof(IV));
   } else {
     CHECK_DERIVED_FROM(1,CIntNAME);
-    MAYBE_GROW_CARRAY(x,Tie__CIntArray,len,sizeof(int));
+    MAYBE_GROW_CARRAY(x,Tie__CIntArray,len,sizeof(IV));
   }
   if (!y) {
-    NEW_CARRAY(y,Tie__CIntArray,len,sizeof(int));
+    NEW_CARRAY(y,Tie__CIntArray,len,sizeof(IV));
   } else {
     CHECK_DERIVED_FROM(2,CIntNAME);
-    MAYBE_GROW_CARRAY(y,Tie__CIntArray,len,sizeof(int));
+    MAYBE_GROW_CARRAY(y,Tie__CIntArray,len,sizeof(IV));
   }
   if (!z) {
-    NEW_CARRAY(z,Tie__CIntArray,len,sizeof(int));
+    NEW_CARRAY(z,Tie__CIntArray,len,sizeof(IV));
   } else {
     CHECK_DERIVED_FROM(3,CIntNAME);
-    MAYBE_GROW_CARRAY(z,Tie__CIntArray,len,sizeof(int));
+    MAYBE_GROW_CARRAY(z,Tie__CIntArray,len,sizeof(IV));
   }
   for (i=0; i < len; i++) {
     x->ptr[i] = array[i][0];
@@ -1687,28 +1688,28 @@ CODE:
   len = carray->len / 4;
   array = (int4 *) carray->ptr;
   if (!x) {
-    NEW_CARRAY(x,Tie__CIntArray,len,sizeof(int));
+    NEW_CARRAY(x,Tie__CIntArray,len,sizeof(IV));
   } else {
     CHECK_DERIVED_FROM(1,CIntNAME);
-    MAYBE_GROW_CARRAY(x,Tie__CIntArray,len,sizeof(int));
+    MAYBE_GROW_CARRAY(x,Tie__CIntArray,len,sizeof(IV));
   }
   if (!y) {
-    NEW_CARRAY(y,Tie__CIntArray,len,sizeof(int));
+    NEW_CARRAY(y,Tie__CIntArray,len,sizeof(IV));
   } else {
     CHECK_DERIVED_FROM(2,CIntNAME);
-    MAYBE_GROW_CARRAY(y,Tie__CIntArray,len,sizeof(int));
+    MAYBE_GROW_CARRAY(y,Tie__CIntArray,len,sizeof(IV));
   }
   if (!z) {
-    NEW_CARRAY(z,Tie__CIntArray,len,sizeof(int));
+    NEW_CARRAY(z,Tie__CIntArray,len,sizeof(IV));
   } else {
     CHECK_DERIVED_FROM(3,CIntNAME);
-    MAYBE_GROW_CARRAY(z,Tie__CIntArray,len,sizeof(int));
+    MAYBE_GROW_CARRAY(z,Tie__CIntArray,len,sizeof(IV));
   }
   if (!w) {
-    NEW_CARRAY(w,Tie__CIntArray,len,sizeof(int));
+    NEW_CARRAY(w,Tie__CIntArray,len,sizeof(IV));
   } else {
     CHECK_DERIVED_FROM(4,CIntNAME);
-    MAYBE_GROW_CARRAY(w,Tie__CIntArray,len,sizeof(int));
+    MAYBE_GROW_CARRAY(w,Tie__CIntArray,len,sizeof(IV));
   }
   for (i=0; i < len; i++) {
     x->ptr[i] = array[i][0];
@@ -1731,7 +1732,7 @@ int
 double_itemsize (carray)
   Tie__CDoubleArray * carray
 CODE:
-  RETVAL = sizeof(double);
+  RETVAL = sizeof(NV);
 OUTPUT:
   RETVAL
 
@@ -1744,7 +1745,7 @@ PPCODE:
     int  len;
     AV * av;
     Tie__CDoubleArray *carray;
-    double *array;
+    NV *array;
     int i, avlen;
     /* */
     if (items < 1 || items > 3)
@@ -1764,7 +1765,7 @@ PPCODE:
             av   = (items == 2) ? av = (AV*)SvRV(ST(1)) : NULL;
     	}
         /* make room */
-        NEW_CARRAY(carray,Tie__CDoubleArray,len,sizeof(double));
+        NEW_CARRAY(carray,Tie__CDoubleArray,len,sizeof(NV));
         carray->len = len;
     	if (av) {
       	    /* initializing section: */
@@ -1782,7 +1783,7 @@ PPCODE:
     }
 
 
-double
+NV
 double_get(carray, index)
     Tie__CDoubleArray * carray
     int      index
@@ -1799,7 +1800,7 @@ void
 double_set(carray, index, value)
     Tie__CDoubleArray * carray
     int      index
-    double   value
+    NV       value
 ALIAS:
     double_STORE = 1
 CODE:
@@ -1815,7 +1816,7 @@ double_nreverse (carray)
     Tie__CDoubleArray * carray
 PREINIT:
     int len;
-    double *up, *down, tmp;
+    NV *up, *down, tmp;
 CODE:
     len = carray->len;
     if (!len)  XSRETURN_EMPTY;
@@ -1842,7 +1843,7 @@ double_ToDouble2 (x, y, dst=0)
   Tie__CDoubleArray *dst = (items > 2) ? dst = (Tie__CDoubleArray *)SvRV(ST(2)) : NULL;
 PREINIT:
   int i, len;
-  double *xp, *yp;
+  NV *xp, *yp;
   double2 *dstp;
 CODE:
   len = x->len;
@@ -1911,7 +1912,7 @@ double_list(carray)
   Tie__CDoubleArray * carray
 PREINIT:
     int i, len;
-    double *array;
+    NV *array;
 CODE:
     RETVAL = newAV();
     len = carray->len;
@@ -1989,16 +1990,16 @@ CODE:
   len = carray->len / 2;
   array = (double2 *) carray->ptr;
   if (!x) {
-    NEW_CARRAY(x,Tie__CDoubleArray,len,sizeof(double));
+    NEW_CARRAY(x,Tie__CDoubleArray,len,sizeof(NV));
   } else {
     CHECK_DERIVED_FROM(1,CDblNAME);
-    MAYBE_GROW_CARRAY(x,Tie__CDoubleArray,len,sizeof(double));
+    MAYBE_GROW_CARRAY(x,Tie__CDoubleArray,len,sizeof(NV));
   }
   if (!y) {
-    NEW_CARRAY(y,Tie__CDoubleArray,len,sizeof(double));
+    NEW_CARRAY(y,Tie__CDoubleArray,len,sizeof(NV));
   } else {
     CHECK_DERIVED_FROM(2,CDblNAME);
-    MAYBE_GROW_CARRAY(y,Tie__CDoubleArray,len,sizeof(double));
+    MAYBE_GROW_CARRAY(y,Tie__CDoubleArray,len,sizeof(NV));
   }
   for (i=0; i < len; i++) {
     x->ptr[i] = array[i][0];
@@ -2082,22 +2083,22 @@ CODE:
     len = carray->len / 3;
     array = (double3 *) carray->ptr;
     if (!x) {
-      NEW_CARRAY(x,Tie__CDoubleArray,len,sizeof(double));
+      NEW_CARRAY(x,Tie__CDoubleArray,len,sizeof(NV));
     } else {
       CHECK_DERIVED_FROM(1,CDblNAME);
-      MAYBE_GROW_CARRAY(x,Tie__CDoubleArray,len,sizeof(double));
+      MAYBE_GROW_CARRAY(x,Tie__CDoubleArray,len,sizeof(NV));
     }
     if (!y) {
-      NEW_CARRAY(y,Tie__CDoubleArray,len,sizeof(double));
+      NEW_CARRAY(y,Tie__CDoubleArray,len,sizeof(NV));
     } else {
       CHECK_DERIVED_FROM(1,CDblNAME);
-      MAYBE_GROW_CARRAY(y,Tie__CDoubleArray,len,sizeof(double));
+      MAYBE_GROW_CARRAY(y,Tie__CDoubleArray,len,sizeof(NV));
     }
     if (!z) {
-      NEW_CARRAY(z,Tie__CDoubleArray,len,sizeof(double));
+      NEW_CARRAY(z,Tie__CDoubleArray,len,sizeof(NV));
     } else {
       CHECK_DERIVED_FROM(1,CDblNAME);
-      MAYBE_GROW_CARRAY(z,Tie__CDoubleArray,len,sizeof(double));
+      MAYBE_GROW_CARRAY(z,Tie__CDoubleArray,len,sizeof(NV));
     }
     for (i=0; i < len; i++) {
       x->ptr[i] = array[i][0];
@@ -2279,11 +2280,11 @@ BOOT:
        You might add more in perl per class (but not readonly).
        Todo: we'll get rid of this, stored in the struct as elsize */
 #ifdef OLD
-    mysv_ivcreate (sizeof(int),    "Tie::CIntArray::itemsize",    SVf_READONLY);
+    mysv_ivcreate (sizeof(IV),     "Tie::CIntArray::itemsize",    SVf_READONLY);
     mysv_ivcreate (sizeof(int2),   "Tie::CInt2Array::itemsize",   SVf_READONLY);
     mysv_ivcreate (sizeof(int3),   "Tie::CInt3Array::itemsize",   SVf_READONLY);
     mysv_ivcreate (sizeof(int4),   "Tie::CInt4Array::itemsize",   SVf_READONLY);
-    mysv_ivcreate (sizeof(double), "Tie::CDoubleArray::itemsize", SVf_READONLY);
+    mysv_ivcreate (sizeof(NV),     "Tie::CDoubleArray::itemsize", SVf_READONLY);
     mysv_ivcreate (sizeof(double2),"Tie::CDouble2Array::itemsize",SVf_READONLY);
     mysv_ivcreate (sizeof(double3),"Tie::CDouble3Array::itemsize",SVf_READONLY);
     mysv_ivcreate (sizeof(char *), "Tie::CStringArray::itemsize", SVf_READONLY);

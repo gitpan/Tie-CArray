@@ -10,3 +10,4 @@ t/01dblarr.t
 t/02strarr.t
 t/03intcvt.t
 META.yml                                 Module meta-data (added by MakeMaker)
+SIGNATURE                                Public-key signature (added by MakeMaker)

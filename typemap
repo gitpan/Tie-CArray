@@ -1,10 +1,11 @@
-# those can also be T_CPTROBJ and then automatically use REF on DESTROY
-# needed are only T_AVREF and T_CARRAY
-int *     		T_CPTR
+# Those can also be T_CPTROBJ and then automatically use REF on DESTROY
+# needed are only T_AVREF and T_CARRAY.
+# T_NV is not defined in 5.005005
+IV *     		T_CPTR
 int2 *    		T_CPTR
 int3 *    		T_CPTR
 int4 *    		T_CPTR
-double *  		T_CPTR
+NV *  		        T_CPTR
 double2 * 		T_CPTR
 double3 * 		T_CPTR
 char **   		T_CSTRINGPTR
